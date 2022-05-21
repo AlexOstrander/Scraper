@@ -113,11 +113,11 @@ def job():
     print("Tracking Products....")
     printPlantList(getPlantList(doc))
     # Simulate item being added back in stock
-    for info in data:
-        if info['Stock'] == 'Out of Stock':
-            info['Stock'] = 'In Stock'
-        else:
-            continue
+    # for info in data:
+    #     if info['Stock'] == 'Out of Stock':
+    #         info['Stock'] = 'In Stock'
+    #     else:
+    #         continue
     restocked(data, doc)
     newPlantStock(data, doc)
 schedule.every(30).seconds.do(job)
