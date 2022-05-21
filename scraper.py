@@ -4,8 +4,11 @@ import lxml.html
 # set url for scraping
 url = 'https://www.nsetropicals.com/product-category/restocks/'
 
+# set header for web scrape
+header = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
+
 # request the web page
-html = requests.get(url, headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'})
+html = requests.get(url, headers=header)
     
 # create HtmlElement object
 doc = lxml.html.fromstring(html.text)
@@ -13,16 +16,16 @@ doc = lxml.html.fromstring(html.text)
 # create list to store plant data
 data = []
     
-def getPlantList(doc):
+def get_plant_list(doc):
     
     # Parse page for ul of plants
-    plantsParentList = doc.xpath('//*[@id="shop"]/div/ul')[0]
+    plant_parent_list = doc.xpath('//*[@id="shop"]/div/ul')[0]
 
     # Parse ul for li(s) of the plants
-    plantsList = plantsParentList.xpath('//a[@class="woocommerce-LoopProduct-link woocommerce-loop-product__link"]')
+    plant_list = plant_parent_list.xpath('//a[@class="woocommerce-LoopProduct-link woocommerce-loop-product__link"]')
     
     # iterate through plantsList to grab data for individual plants
-    for plant in plantsList:
+    for plant in plant_list:
         try:
             plants = {}
             title = plant.xpath('.//h2[@class="woocommerce-loop-product__title"]/text()')[0]
@@ -47,7 +50,7 @@ def getPlantList(doc):
             
     return data
             
-def printPlantList(list):
+def print_plant_list(list):
     # create method to print plant list 
     for info in data:
         try:
@@ -58,48 +61,48 @@ def printPlantList(list):
 def restocked(data, doc):
     
     # Get updated plant list
-    plantList = getPlantList(doc)
+    plant_list = get_plant_list(doc)
     
     # Create list to hold out of stock items for comparison
-    outOfStock = []
+    out_of_stock = []
     restocked = []
     
     # Grab out of stock plants
     for info in data:
         if info['Stock'] == 'Out of Stock':
-            outOfStock.append(info)
+            out_of_stock.append(info)
     
     # Check stock see if plant stock has been updated
-    for restock in outOfStock:
-        for plant in plantList:
+    for restock in out_of_stock:
+        for plant in plant_list:
             if restock['Title'] == plant['Title']:
                 if restock['Stock'] != plant['Stock']:
                     restocked.append(restock)
 
     # clear outOfStock list for list comphrehension 
-    outOfStock.clear()
-    [outOfStock.append(x) for x in restocked if x not in outOfStock]
+    out_of_stock.clear()
+    [out_of_stock.append(x) for x in restocked if x not in out_of_stock]
     
     
     # Print out items if are now in stock
-    for i in outOfStock:
+    for i in out_of_stock:
         print(f"{i['Title']} is back in stock!")
     
         
-def newPlantStock(data, doc):
+def new_plant_stock(data, doc):
     
     # Get updated plant list
-    plantList = getPlantList(doc)
+    plant_list = get_plant_list(doc)
     
     # Create list to store the new plant products
-    newPlants = []
+    new_plants = []
     
     # Compare data and plantList if Plant from Plantlist is not in data add to newPlants
-    [newPlants.append(x) for x in data if x not in plantList]
+    [new_plants.append(x) for x in data if x not in plant_list]
     
     # Iterate through new plants and update user
-    for plant in newPlants:
-        if newPlants:
+    for plant in new_plants:
+        if new_plants:
             print(f"{plant['Title']} is a new product")
         else:
             continue
@@ -109,7 +112,7 @@ def newPlantStock(data, doc):
 # times after every 1 minute
 def job():
     print("Tracking Products....")
-    printPlantList(getPlantList(doc))
+    print_plant_list(get_plant_list(doc))
     # Simulate item being added back in stock
     # for info in data:
     #     if info['Stock'] == 'Out of Stock':
@@ -117,7 +120,7 @@ def job():
     #     else:
     #         continue
     restocked(data, doc)
-    newPlantStock(data, doc)
+    new_plant_stock(data, doc)
     
 if __name__ == "__main__":
     job()
