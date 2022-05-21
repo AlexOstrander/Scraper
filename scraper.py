@@ -1,7 +1,5 @@
 import requests
 import lxml.html
-import schedule
-
 
 # set url for scraping
 url = 'https://www.nsetropicals.com/product-category/restocks/'
@@ -120,7 +118,6 @@ def job():
     #         continue
     restocked(data, doc)
     newPlantStock(data, doc)
-schedule.every(30).seconds.do(job)
- 
+    
 if __name__ == "__main__":
     job()
